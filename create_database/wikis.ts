@@ -1,19 +1,19 @@
 import wiki from "../dataset/wiki-1.json" with { type: "json" }
+import { jis_char_search } from "../misc/filter.ts"
 import { transact_aliases } from "./utils.ts"
 
 type Wiki = typeof wiki
 
 const koreanPattern = /^[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]+$/
-const kanjiPattern = /^\p{sc=Han}+$/u
-const emojiPattern = /^\p{Emoji}+$/v
+
+const kanjiRegexp = /\p{sc=Han}/u
+const kanaRegexp = /[\p{sc=Hiragana}\p{sc=Katakana}]/u
 
 await Deno.mkdir("./tmp", { recursive: true })
 
 export const register_ext_alias = async () => {
     const data: [string, string][] = []
-
-    const hans = []
-    const emojis = []
+    const ignored = []
 
     let count = 0
     while (true) {
@@ -24,20 +24,24 @@ export const register_ext_alias = async () => {
         for (const { other_names, title } of json) {
             for (const other_name of other_names) {
 
+                // 仮名が含まれているものは例外
+                const kanas = [...other_name].filter(v => kanaRegexp.test(v)).join("")
+                if (kanas.length === 0) {
+
+                    // 日本語範囲外(主に中国語)をスキップ
+                    const kanjis = [...other_name].filter(v => kanjiRegexp.test(v)).join("")
+                    if (kanjis.length !== jis_char_search.search(kanjis).length) {
+                        console.log(`Skipped not japanese range: ${other_name}`)
+                        ignored.push(other_name)
+                        continue
+                    }
+                }
+
                 // 韓国語をスキップ
                 if (koreanPattern.test(other_name)) {
                     console.log(`Skipped korean word: ${other_name}`)
+                    ignored.push(other_name)
                     continue
-                }
-
-                // 漢字のみの単語をリストアップ
-                if (kanjiPattern.test(other_name)) {
-                    hans.push(other_name)
-                }
-
-                // 
-                if (emojiPattern.test(other_name)) {
-                    emojis.push([other_name, title])
                 }
 
                 data.push([other_name, title])
@@ -45,8 +49,6 @@ export const register_ext_alias = async () => {
         }
     }
 
-    await Deno.writeTextFile("./tmp/hans.txt", hans.join("\n"))
-    await Deno.writeTextFile("./tmp/emojis.txt", emojis.join("\n"))
-
+    await Deno.writeTextFile("./tmp/ignored.txt", ignored.join("\n"))
     transact_aliases(data)
 }
