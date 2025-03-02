@@ -8,11 +8,11 @@ Wikiにはキャラクターやシチュエーションの日本語名が別名�
 
 ## ファイルの説明
 
-- danbooru.csv
+- [danbooru.csv](./danbooru.csv)
   - 投稿数順に30投稿以上のみを抽出したタグ
   - ちょうど13万件ぐらい
   - `a1111-sd-webui-tagcomplete`のdanbooru.csvを置き換えても良いし、追加にしてもいい。
-- danbooru_full.csv
+- [danbooru_full.csv](./danbooru_full.csv)
   - 投稿数順の完全なタグ
   - 全部読み込むと重いので非推奨
 - database/data.db
