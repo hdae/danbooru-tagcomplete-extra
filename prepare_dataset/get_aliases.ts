@@ -6,7 +6,7 @@ export const get_aliases = async (baseurl = "https://danbooru.donmai.us") => {
     let page = 1
     while (true) {
 
-        const filename = `./dataset/aliase-${page}.json`
+        const filename = `./dataset/alias-${page}.json`
 
         // ファイルが存在するならスキップ
         if (await Deno.stat(filename).then(() => true).catch(() => false)) continue
@@ -20,7 +20,7 @@ export const get_aliases = async (baseurl = "https://danbooru.donmai.us") => {
         // 件数が0なら終了
         if (data.length === 0) break
 
-        console.log(`Aliase: page ${page} has ${data.length} contents.`)
+        console.log(`Alias: page ${page} has ${data.length} contents.`)
 
         // 一旦保存
         await Deno.writeTextFile(filename, JSON.stringify(data))
