@@ -25,7 +25,7 @@ export const get_wikis = async (baseurl = "https://danbooru.donmai.us") => {
         // 一旦保存
         await Deno.writeTextFile(filename, JSON.stringify(data))
 
-        // 1秒待つ
+        // 10秒待つ
         await delay(10000)
 
         // 次のページにして続行
